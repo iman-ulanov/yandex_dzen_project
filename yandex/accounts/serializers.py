@@ -14,13 +14,27 @@ class AuthorRegisterSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if data['password'] != data['password_2']:
-            raise serializers.ValidationError('Пароли должны совпадать!')
+            raise serializers.ValidationError('Введите пароль правильно')
         return data
 
-    def create(self, validated_data):
-        user = User(username=validated_data['username'])
-        user.set_password(validated_data['password'])
-        user.save()
-        author = Author.objects.create(telegram_chat_id=validated_data['telegram_chat_id'], email=validated_data['email'], user=user)
-        return author
+    def validate_username(self, username):
+        if len(username) < 8:
+            raise serializers.ValidationError('Имя пользователя должно быть не менее 8 символов')
+        return username
 
+    def validate_email(self, email):
+        if '@email.com' not in email:
+            raise serializers.ValidationError('Не правильно введена почта')
+        return email
+
+    def create(self, validated_data):
+        try:
+            user = User(username=validated_data['username'])
+            user.set_password(validated_data['password'])
+            user.save()
+        except Exception as e:
+            raise serializers.ValidationError(f'Не удалось создать пользователя {e}')
+        else:
+            author = Author.objects.create(telegram_chat_id=validated_data['telegram_chat_id'],
+                                           email=validated_data['email'], user=user)
+        return author
