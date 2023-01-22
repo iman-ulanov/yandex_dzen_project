@@ -1,0 +1,6 @@
+.idea/
+venv/
+yandex/db.sqlite3
+yandex/accounts/migrations
+yandex/posts/migrations
+**/__pycache__/
